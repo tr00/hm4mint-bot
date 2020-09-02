@@ -36,7 +36,7 @@ def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     # zb: # | A | B | A or B | not (A or B) |
     #[print(f' {ex} |', end='') for ex in expr]
     [print(f' {v} |', end='') for v in vars]
-    [print(f'\\| {ex} ', end='') for ex in expr]
+    [print(f'| {ex} ', end='') for ex in expr]
     print('\n')
     # ls ist eine liste mit den längen des strings der expressions
     # um später die absstände richtig zu machen
@@ -59,7 +59,7 @@ def drawLine(vobj, expr, vars, perm, ls):
     #print(end='| ')
     [print(f' {getattr(vobj, v)} |', end='') for v in vars]
     # und hier werden die expressions ausgeführt und dann auch geprintet
-    [exec(f'print(\'\\|\', int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range(l)]', {'l':l, 'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
+    [exec(f'print(\'|\', int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range(l)]', {'l':l, 'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     #[exec(f'print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]; print(end=\'| \')', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
 
@@ -84,3 +84,5 @@ async def on_message(message):
     # so kann man checken ob der bot online ist
     elif message.content.startswith('/test'):
         await message.channel.send('```Elixir\ntest```')
+
+
