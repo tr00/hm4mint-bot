@@ -16,27 +16,21 @@ class Vars:
 def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     vars = [] # diese liste beinhaltet alle variablen der tabelle
     for ex in expr:
-        if ';' in ex: 
+        if ';' in ex or 'exit' in ex: 
             # da der input string weiter unten in eine exec() methode rein gesteckt wird
             # will ich nicht das man mehrere zeilen injecten kann deswegen ist das ; verboten
             print('no code injection my friend...')
             return
         # hier wird geguckt welche variablen verwendet werden in den ausdrücken
-        for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-            if c in ex and not c in vars:
-                vars.append(c)
+        [vars.append(c) for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' if c in ex and not c in vars]
     # die instanz die die variablen bekommen wird
     vobj = Vars()
     # hier werden zuerst alle variablen geprintet 
-    # zb: | A | B 
-    #[print(f'| {v} ', end='') for v in vars]
-    # zb: | A | B |
-    #print(end='|')
+    # zb: A | B |
+    [print(end=f' {v} |') for v in vars]
     # hier nun alle expressions
-    # zb: # | A | B | A or B | not (A or B) |
-    #[print(f' {ex} |', end='') for ex in expr]
-    [print(f' {v} |', end='') for v in vars]
-    [print(f'| {ex} ', end='') for ex in expr]
+    # zb: #  A | B || A or B | not (A or B) |
+    [print(end=f'| {ex} ') for ex in expr]
     print('\n')
     # ls ist eine liste mit den längen des strings der expressions
     # um später die absstände richtig zu machen
@@ -55,12 +49,9 @@ def drawLine(vobj, expr, vars, perm, ls):
     [setattr(vobj, vars[i], perm[i]) for i in range(len(vars))]
     # jetzt werden die werte geprintet
     # zb: | 1 | 1  
-    #[print(f'| {getattr(vobj, v)} ', end='') for v in vars]
-    #print(end='| ')
-    [print(f' {getattr(vobj, v)} |', end='') for v in vars]
+    [print(end=f' {getattr(vobj, v)} |') for v in vars]
     # und hier werden die expressions ausgeführt und dann auch geprintet
-    [exec(f'print(\'|\', int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
-    #[exec(f'print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]; print(end=\'| \')', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
+    [exec(f'print(\'|\', int({ex}), end=\'\'); [print(end=\' \') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
 
 @client.event
