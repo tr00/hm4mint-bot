@@ -7,7 +7,6 @@ client = discord.Client()
 # mini methode die alle permutationen von 1 und 0 erstellt für die notwendigen variablen
 generator = lambda l: product([1,0], repeat=l)
 
-#test
 # diese klasse wird später das objekt dass alle variablen erhält
 # die variablen werden während runtime erstellt 
 class Vars:
@@ -30,12 +29,14 @@ def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     vobj = Vars()
     # hier werden zuerst alle variablen geprintet 
     # zb: | A | B 
-    [print(f'| {v} ', end='') for v in vars]
+    #[print(f'| {v} ', end='') for v in vars]
     # zb: | A | B |
-    print(end='|')
+    #print(end='|')
     # hier nun alle expressions
     # zb: # | A | B | A or B | not (A or B) |
-    [print(f' {ex} |', end='') for ex in expr]
+    #[print(f' {ex} |', end='') for ex in expr]
+    [print(f' {v} |', end='') for v in vars]
+    [print(f'\\| {ex} ', end='') for ex in expr]
     print('\n')
     # ls ist eine liste mit den längen des strings der expressions
     # um später die absstände richtig zu machen
@@ -54,10 +55,12 @@ def drawLine(vobj, expr, vars, perm, ls):
     [setattr(vobj, vars[i], perm[i]) for i in range(len(vars))]
     # jetzt werden die werte geprintet
     # zb: | 1 | 1  
-    [print(f'| {getattr(vobj, v)} ', end='') for v in vars]
-    print(end='| ')
+    #[print(f'| {getattr(vobj, v)} ', end='') for v in vars]
+    #print(end='| ')
+    [print(f' {getattr(vobj, v)} |', end='') for v in vars]
     # und hier werden die expressions ausgeführt und dann auch geprintet
-    [exec(f'print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]; print(end=\'| \')', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
+    [exec(f'print(\'\\| \', end=\'\'); print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range(l)]', {'l':l, 'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
+    #[exec(f'print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]; print(end=\'| \')', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
 
 @client.event
