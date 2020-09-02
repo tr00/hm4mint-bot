@@ -59,7 +59,7 @@ def drawLine(vobj, expr, vars, perm, ls):
     #print(end='| ')
     [print(f' {getattr(vobj, v)} |', end='') for v in vars]
     # und hier werden die expressions ausgeführt und dann auch geprintet
-    [exec(f'print(\'\\| \', end=\'\'); print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range(l)]', {'l':l, 'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
+    [exec(f'print(\'\\|\', int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range(l)]', {'l':l, 'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     #[exec(f'print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]; print(end=\'| \')', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
 
