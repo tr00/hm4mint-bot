@@ -54,7 +54,7 @@ def drawLine(vobj, expr, vars, perm, ls):
     # und hier werden die expressions ausgeführt und dann auch geprintet
     for ex, l in zip(expr, ls):
         exec(f'setattr(vobj, \'_r\', str(int({ex})))', {'vobj':vobj, 'vars':vars})
-        print(end=f'| {vobj._r.join([\' \' for _ in range(l - len(vobj._r) - 1)])}')
+        print(end='| {} {}'.format(vobj._r, ''.join([' ' for _ in range(l - len(vobj._r))])))
     #[exec(f'print(\'|\', int({ex}), end=\'\'); [print(end=\' \') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
 
