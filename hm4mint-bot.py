@@ -59,7 +59,7 @@ def drawLine(vobj, expr, vars, perm, ls):
     #print(end='| ')
     [print(f' {getattr(vobj, v)} |', end='') for v in vars]
     # und hier werden die expressions ausgeführt und dann auch geprintet
-    [exec(f'print(\'|\', int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range(l)]', {'l':l, 'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
+    [exec(f'print(\'|\', int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     #[exec(f'print(int({ex}), end=\'\'); [print(\' \', end=\'\') for _ in range({l})]; print(end=\'| \')', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
 
@@ -73,10 +73,15 @@ async def on_message(message):
         return
     if message.content.startswith('/booltable'):
         msg = message.content[11:]
-        print(f'$bot: receiving request: "bt>{msg[:(min(len(msg), 15))]}"')
+        print(f'$bot: receiving request: "{msg[:(min(len(msg), 15))].strip()}..."')
         sys.stdout = mout = StringIO()
         print('```Elixir')
-        draw([s.strip() for s in msg.split(',')])
+        try:
+            draw([s.strip() for s in msg.split(',')])
+        except:
+            sys.stdout = sys.__stdout__
+            print('invalid input:', msg)
+            return
         print(end='```')
         sys.stdout = sys.__stdout__
         print('$bot: successfully parsed a request by', str(message.author)[:-5])
