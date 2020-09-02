@@ -10,8 +10,9 @@ generator = lambda l: product([1,0], repeat=l)
 # diese klasse wird später das objekt dass alle variablen erhält
 # die variablen werden während runtime erstellt 
 class Vars:
-    pass
-
+    def __init__(self):
+        self._r=1
+        
 
 def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     vars = [] # diese liste beinhaltet alle variablen der tabelle
@@ -51,7 +52,10 @@ def drawLine(vobj, expr, vars, perm, ls):
     # zb: | 1 | 1  
     [print(end=f' {getattr(vobj, v)} |') for v in vars]
     # und hier werden die expressions ausgeführt und dann auch geprintet
-    [exec(f'print(\'|\', int({ex}), end=\'\'); [print(end=\' \') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
+    for ex, l in zip(expr, ls):
+        exec(f'setattr(vobj, \'_r\', str(int({ex})))', {'vobj':vobj, 'vars':vars})
+        print(end='| {} {}'.format(vobj._r, ''.join([' ' for _ in range(l - len(vobj._r))])))
+    #[exec(f'print(\'|\', int({ex}), end=\'\'); [print(end=\' \') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
 
 @client.event
