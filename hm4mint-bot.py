@@ -77,3 +77,6 @@ async def on_message(message):
         sys.stdout = sys.__stdout__
         print('$bot: successfully parsed a request by', str(message.author)[:-5])
         await message.channel.send(mout.getvalue())
+    # so kann man checken ob der bot online ist
+    elif message.content.startswith('/test'):
+        await message.channel.send('```Elixir\ntest```')
