@@ -7,6 +7,7 @@ client = discord.Client()
 # mini methode die alle permutationen von 1 und 0 erstellt für die notwendigen variablen
 generator = lambda l: product([1,0], repeat=l)
 
+#test
 # diese klasse wird später das objekt dass alle variablen erhält
 # die variablen werden während runtime erstellt 
 class Vars:
