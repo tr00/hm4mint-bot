@@ -75,5 +75,5 @@ async def on_message(message):
         draw([s.strip() for s in msg.split(',')])
         print(end='```')
         sys.stdout = sys.__stdout__
-        print('$bot: successfully parsed a request by', str(message.author)[:5])
+        print('$bot: successfully parsed a request by', str(message.author)[:-5])
         await message.channel.send(mout.getvalue())
