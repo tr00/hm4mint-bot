@@ -3,7 +3,6 @@ from io import StringIO
 import sys
 from itertools import product
 
-mout = StringIO()
 client = discord.Client()
 # mini methode die alle permutationen von 1 und 0 erstellt für die notwendigen variablen
 generator = lambda l: product([1,0], repeat=l)
@@ -48,7 +47,7 @@ def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     for i in range(len(expr)):
         # hier wird jede expression einmal durchleuchtet um fehler zu vermeiden
         expr[i] = interpret(expr[i], vars)  # expr[j].replace(vars[i], f'getattr(vobj, vars[{i}])')
-        print('expr: ', expr[i], file=sys.stderr)
+        # debugging: print('expr: ', expr[i], file=sys.stderr)
     # hier werden iterativ die restlichen zeilen geprintet
     # vobei perm immer eine permutation ist also zb: (1, 1)
     [drawLine(vobj, expr, vars, perm, ls) for perm in generator(len(vars))]
@@ -69,7 +68,6 @@ def drawLine(vobj, expr, vars, perm, ls):
 @client.event
 async def on_ready():
     print('ready!')
-    sys.stdout = mout
     
 @client.event
 async def on_message(message):
@@ -77,20 +75,20 @@ async def on_message(message):
         return
     if message.content.startswith('/booltable'):
         msg = message.content[11:]
-        mout.truncate(0)
         print(f'$bot: receiving request: "{msg[:(min(len(msg), 15))].strip()}..."', file=sys.__stdout__)
+        sys.stdout = StringIO()
         print('```Elixir')
         try:
             draw([s.strip() for s in msg.split(',')])
         except:
-            mout.truncate(10)
+            sys.stdout.truncate(10)
             print('invalid input:', msg)
             raise            
         else:
             print('$bot: successfully parsed a request by', str(message.author)[:-5], file=sys.__stdout__)
         finally:
             print(end='```')
-            await message.channel.send(mout.getvalue())
+            await message.channel.send(sys.stdout.getvalue())
     # so kann man checken ob der bot online ist
     elif message.content.startswith('/test'):
         await message.channel.send('```Elixir\ntest```')
