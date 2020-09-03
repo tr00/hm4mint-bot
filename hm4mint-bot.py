@@ -36,11 +36,9 @@ def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     # ls ist eine liste mit den längen des strings der expressions
     # um später die absstände richtig zu machen
     ls = [len(ex) for ex in expr]
-    for i in range(len(vars)):
-        for j in range(len(expr)):
-            # dynamisch erstellte variablen können nur mit getattr erhalten werden
-            # deswegen wird jedes A mit einem "getattr(vobj, vars[0])" ausgetauscht
-            expr[j] = expr[j].replace(vars[i], f'getattr(vobj, vars[{i}])')
+    for i in range(len(expr)):
+        # hier wird jede expression einmal durchleuchtet um fehler zu vermeiden
+        expr[i] = intepret(expr[i], vars)  # expr[j].replace(vars[i], f'getattr(vobj, vars[{i}])')
     # hier werden iterativ die restlichen zeilen geprintet
     # vobei perm immer eine permutation ist also zb: (1, 1)
     [drawLine(vobj, expr, vars, perm, ls) for perm in generator(len(vars))]
@@ -57,6 +55,14 @@ def drawLine(vobj, expr, vars, perm, ls):
         print(end='| {} {}'.format(vobj._r, ''.join([' ' for _ in range(l - len(vobj._r))])))
     #[exec(f'print(\'|\', int({ex}), end=\'\'); [print(end=\' \') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
+    
+def interpret(ex, vars):
+    for i in range(len(vars)):
+        # dynamisch erstellte variablen können nur mit getattr erhalten werden
+        # deswegen wird jedes A mit einem "getattr(vobj, vars[0])" ausgetauscht
+        ex = ex.replace(vars[i], f'getattr(vobj, vars[{i}])')
+    # backslashes werden rausgefiltert damit man discords formatting escapen kann
+    return ex.replace('\\', '')
 
 @client.event
 async def on_ready():
@@ -74,9 +80,7 @@ async def on_message(message):
         try:
             draw([s.strip() for s in msg.split(',')])
         except:
-            sys.stdout = sys.__stdout__
             print('invalid input:', msg)
-            return
         print(end='```')
         sys.stdout = sys.__stdout__
         print('$bot: successfully parsed a request by', str(message.author)[:-5])
