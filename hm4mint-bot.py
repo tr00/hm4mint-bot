@@ -3,6 +3,7 @@ from io import StringIO
 import sys
 from itertools import product
 
+mout = StringIO()
 client = discord.Client()
 # mini methode die alle permutationen von 1 und 0 erstellt für die notwendigen variablen
 generator = lambda l: product([1,0], repeat=l)
@@ -12,7 +13,15 @@ generator = lambda l: product([1,0], repeat=l)
 class Vars:
     def __init__(self):
         self._r=1
-        
+    
+    
+def interpret(ex, vars):
+    for i in range(len(vars)):
+        # dynamisch erstellte variablen können nur mit getattr erhalten werden
+        # deswegen wird jedes A mit einem "getattr(vobj, vars[0])" ausgetauscht
+        ex = ex.replace(vars[i], f'getattr(vobj, vars[{i}])')
+    # backslashes werden rausgefiltert damit man discords formatting escapen kann
+    return ex.replace('\\', '')
 
 def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     vars = [] # diese liste beinhaltet alle variablen der tabelle
@@ -38,7 +47,8 @@ def draw(expr): # expr = liste von strings zb: ['A or B', 'not (A or B)']
     ls = [len(ex) for ex in expr]
     for i in range(len(expr)):
         # hier wird jede expression einmal durchleuchtet um fehler zu vermeiden
-        expr[i] = intepret(expr[i], vars)  # expr[j].replace(vars[i], f'getattr(vobj, vars[{i}])')
+        expr[i] = interpret(expr[i], vars)  # expr[j].replace(vars[i], f'getattr(vobj, vars[{i}])')
+        print('expr: ', expr[i], file=sys.stderr)
     # hier werden iterativ die restlichen zeilen geprintet
     # vobei perm immer eine permutation ist also zb: (1, 1)
     [drawLine(vobj, expr, vars, perm, ls) for perm in generator(len(vars))]
@@ -55,18 +65,11 @@ def drawLine(vobj, expr, vars, perm, ls):
         print(end='| {} {}'.format(vobj._r, ''.join([' ' for _ in range(l - len(vobj._r))])))
     #[exec(f'print(\'|\', int({ex}), end=\'\'); [print(end=\' \') for _ in range({l})]', {'vobj':vobj, 'vars':vars}) for ex, l in zip(expr, ls)]
     print()
-    
-def interpret(ex, vars):
-    for i in range(len(vars)):
-        # dynamisch erstellte variablen können nur mit getattr erhalten werden
-        # deswegen wird jedes A mit einem "getattr(vobj, vars[0])" ausgetauscht
-        ex = ex.replace(vars[i], f'getattr(vobj, vars[{i}])')
-    # backslashes werden rausgefiltert damit man discords formatting escapen kann
-    return ex.replace('\\', '')
 
 @client.event
 async def on_ready():
     print('ready!')
+    sys.stdout = mout
     
 @client.event
 async def on_message(message):
@@ -74,19 +77,20 @@ async def on_message(message):
         return
     if message.content.startswith('/booltable'):
         msg = message.content[11:]
-        print(f'$bot: receiving request: "{msg[:(min(len(msg), 15))].strip()}..."')
-        sys.stdout = mout = StringIO()
+        mout.truncate(0)
+        print(f'$bot: receiving request: "{msg[:(min(len(msg), 15))].strip()}..."', file=sys.__stdout__)
         print('```Elixir')
         try:
             draw([s.strip() for s in msg.split(',')])
         except:
+            mout.truncate(10)
             print('invalid input:', msg)
-        print(end='```')
-        sys.stdout = sys.__stdout__
-        print('$bot: successfully parsed a request by', str(message.author)[:-5])
-        await message.channel.send(mout.getvalue())
+            raise            
+        else:
+            print('$bot: successfully parsed a request by', str(message.author)[:-5], file=sys.__stdout__)
+        finally:
+            print(end='```')
+            await message.channel.send(mout.getvalue())
     # so kann man checken ob der bot online ist
     elif message.content.startswith('/test'):
         await message.channel.send('```Elixir\ntest```')
-
-
